@@ -27,19 +27,15 @@ struct symbol {
 	char *string;
 };
 
-struct vtable *vtable_vt;
-struct vtable *object_vt;
-struct vtable *symbol_vt;
-struct object *s_addMethod;
-struct object *s_allocate;
-struct object *s_delegated;
-struct object *s_lookup;
-struct object *s_intern;
-struct object *symbol;
-struct vtable *symbol_list;
+extern struct vtable *vtable_vt;
+extern struct vtable *object_vt;
+extern struct object *s_addMethod;
+extern struct object *s_allocate;
+extern struct object *s_delegated;
+extern struct object *s_lookup;
+extern struct object *s_intern;
+extern struct object *symbol;
 
-struct object *vtable_lookup(struct vtable *self, struct object *key);
-struct object *symbol_new(char *string);
 method_t _bind(struct object *rcv, struct object *msg);
 void init();
 

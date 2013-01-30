@@ -9,8 +9,17 @@ struct object *str_print(struct object *self) {
 	return self;
 }
 
+// Free an object's memory.
+void destroy(struct object *self) {
+	free(self->_vt - 1);
+}
+
 int main(int argc, char **argv) {
 	init();
+
+	// Install a 'destroy' for all objects.
+	struct object *s_destroy = send(symbol, s_intern, (struct object *)"destroy");
+	send(object_vt, s_addMethod, s_destroy, destroy);
 
 	char *test_string  = (char *) send(object_vt, s_allocate, 20);
 	char *test_string2 = (char *) send(object_vt, s_allocate, 20);
