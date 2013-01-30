@@ -26,52 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-struct vtable;
-struct object;
-struct symbol;
-
-// This takes a receiver and a list of params, and returns an object
-typedef struct object *(*method_t)(struct object *receiver, ...);
-
-struct object {
-	struct vtable *_vt[0];
-	void *data;
-};
-
-struct vtable {
-	struct vtable *_vt[0];
-	int size;
-	int tally;
-	struct object **keys;
-	struct object **values;
-	struct vtable *parent;
-};
-
-struct symbol {
-	struct vtable *_vt[0];
-	char *string;
-};
-
-struct vtable *vtable_vt;
-struct vtable *object_vt;
-struct vtable *symbol_vt;
-struct object *s_addMethod;
-struct object *s_allocate;
-struct object *s_delegated;
-struct object *s_lookup;
-struct object *s_intern;
-struct object *symbol;
-struct vtable *symbol_list;
-
-struct object *vtable_lookup(struct vtable *self, struct object *key);
-struct object *symbol_new(char *string);
-
-#define send(RCV, MSG, ARGS...) ({                 \
-	struct object *r = (struct object *)(RCV); \
-	method_t method = _bind(r, (MSG));         \
-	method(r, ##ARGS);                         \
-})
+#include "id.h"
 
 method_t _bind(struct object *rcv, struct object *msg) {
 	method_t method;
@@ -219,25 +174,3 @@ void init() {
 	// new vtables can now be created.
 }
 
-// Print an object (with its address) as a string.
-struct object *str_print(struct object *self) {
-	printf("%p: %s\n", self, (char *) self);
-	return self;
-}
-
-int main(int argc, char **argv) {
-	init();
-
-	char *test_string  = (char *) send(object_vt, s_allocate, 20);
-	char *test_string2 = (char *) send(object_vt, s_allocate, 20);
-	strcpy(test_string, "Testing.");
-	strcpy(test_string2, "Testing again.");
-
-	struct object *print = send(symbol, s_intern, (struct object *)"print");
-	send(object_vt, s_addMethod, print, str_print);
-
-	send(test_string, print);
-	send(test_string2, print);
-
-	return 0;
-}
