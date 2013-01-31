@@ -5,9 +5,6 @@ struct vtable;
 struct object;
 struct symbol;
 
-// This takes a receiver and a list of params, and returns an object
-typedef struct object *(*method_t)(struct object *receiver, ...);
-
 struct object {
 	struct vtable *_vt[0];
 	void *data;
@@ -35,6 +32,9 @@ extern struct object *s_delegated;
 extern struct object *s_lookup;
 extern struct object *s_intern;
 extern struct object *symbol;
+
+// A method takes a receiver and a list of params, and returns an object
+typedef struct object *(*method_t)(struct object *receiver, ...);
 
 method_t _bind(struct object *rcv, struct object *msg);
 void init();

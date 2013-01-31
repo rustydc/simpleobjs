@@ -11,7 +11,7 @@ struct object *str_print(struct object *self) {
 
 // Free an object's memory.
 void destroy(struct object *self) {
-	free(self->_vt - 1);
+	free(self - sizeof(void *));
 }
 
 int main(int argc, char **argv) {
