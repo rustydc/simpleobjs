@@ -1,8 +1,6 @@
-Based heavily on Ian Piumarta's ID object model.
-http://piumarta.com/software/id-objmodel/objmodel2.pdf
+Based heavily on Ian Piumarta's [ID object model](http://piumarta.com/software/id-objmodel/objmodel2.pdf)
 
-Ideas:
-
+### Ideas
  * Needs a language.
  * Expose as library?
  * Modularize globals?
@@ -23,3 +21,4 @@ Ideas:
    * EXPR = [ASSIGN] OBJECT [MSG ARGS ...]
    * Objects, variables? Scoping?
    * Then interpreter. (JIT?)
+ * Self hosting?
