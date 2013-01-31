@@ -21,3 +21,4 @@ Based heavily on Ian Piumarta's [ID object model](http://piumarta.com/software/i
    * EXPR = [ASSIGN] OBJECT [MSG ARGS ...]
    * Objects, variables? Scoping?
    * Then interpreter. (JIT?)
+ * Self hosting?
