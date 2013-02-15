@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "id.h"
+#include "math.h"
 
 struct list {
 	struct node *head;
@@ -24,6 +25,48 @@ struct vtable *list_vt;
 // This overrides object_vt's allocate
 struct object *new_list() {
 	return send(list_vt, s_allocate, sizeof(struct list));
+}
+
+struct vtable *hashmap_vt;
+
+struct entry {
+	struct object *key;
+	struct object *val;
+};
+
+struct map {
+	int length;
+	int capacity;
+	struct entry* entries;
+};
+
+int str_hash(char *str) {
+	int hash = 0, i = 0;
+	while (str[i] != '\0') {
+		hash += str[i] * pow(256, i);
+		i++;
+	}
+	return hash;
+}
+
+void map_insert(struct map *self, struct object *key, struct object *value) {
+	// TODO: Use a fill level.
+	if (self->length == self->capacity) {
+		//int oldCapacity = self->capacity;
+		//struct entry* oldEntries = self->entries;
+
+		self->capacity *= 2;
+		self->entries = calloc(sizeof(struct entry), self->capacity);
+		// TODO: Rehash.
+	}
+
+	int bucket = str_hash((char *) key) % self->capacity;
+	while (self->entries[bucket].key != NULL) {
+		bucket = bucket + 1 % self->capacity;
+	}
+
+	// Either we found an empty slot, or a matching key
+		
 }
 
 // For now, 'list' will be an object, but not 'node'.
@@ -61,14 +104,13 @@ int main(int argc, char **argv) {
 	// Replace its allocate
 	send(list_vt, s_allocate, new_list);
 
+	struct object *s_print = send(symbol, s_intern, (struct object *)"print");
+	send(object_vt, s_addMethod, s_print, str_print);
+
 	char *test_string  = (char *) send(object_vt, s_allocate, 20);
 	strcpy(test_string, "Testing.");
 	char *test_string2 = (char *) send(object_vt, s_allocate, 20);
 	strcpy(test_string2, "Testing again.");
-
-	struct object *l = send(list_vt, s_allocate);
-	send(l, s_add, test_string);
-	send(l, s_add, test_string2);
 
 	return 0;
 }
