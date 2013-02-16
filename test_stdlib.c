@@ -49,24 +49,27 @@ int str_hash(char *str) {
 	return hash;
 }
 
-void map_insert(struct map *self, struct object *key, struct object *value) {
-	// TODO: Use a fill level.
+void map_insert(struct map *self, struct object *key, struct object *val) {
+	int i;
 	if (self->length == self->capacity) {
-		//int oldCapacity = self->capacity;
-		//struct entry* oldEntries = self->entries;
+		int oldCapacity = self->capacity;
+		struct entry* oldEntries = self->entries;
 
 		self->capacity *= 2;
 		self->entries = calloc(sizeof(struct entry), self->capacity);
-		// TODO: Rehash.
+
+		for (i = 0; i != oldCapacity; i++) {
+			map_insert(self, oldEntries[i].key, oldEntries[i].val);
+		}
 	}
 
 	int bucket = str_hash((char *) key) % self->capacity;
+	// TODO: || key != key?
 	while (self->entries[bucket].key != NULL) {
 		bucket = bucket + 1 % self->capacity;
 	}
-
-	// Either we found an empty slot, or a matching key
-		
+	self->entries[bucket].key = key;
+	self->entries[bucket].val = val;
 }
 
 // For now, 'list' will be an object, but not 'node'.
