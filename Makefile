@@ -12,5 +12,5 @@ test_stdlib: id.o test_stdlib.o
 clean:
 	rm -f test_destroy test_stdlib $(OBJECTS)
 
-run: test_stdlib
+run: clean test_stdlib
 	./test_stdlib

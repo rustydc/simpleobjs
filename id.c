@@ -69,8 +69,9 @@ struct object *vtable_addMethod(struct vtable *self, struct object *key,
 	// Too big, double the vtable's size.
 	if (self->tally == self->size) {
 		self->size *= 2;
-		self->keys   = (struct object **) realloc(self->keys, sizeof(struct object *) * self->size);
-		self->values = (struct object **) realloc(self->values, sizeof(struct object *) * self->size);
+		int size = self->size * sizeof(struct object *);
+		self->keys = (struct object **) realloc(self->keys, size);
+		self->values = (struct object **) realloc(self->values, size);
 	}
 
 	// Add the new key, value, and increase tally.
@@ -129,7 +130,7 @@ void init() {
 	vtable_vt = vtable_delegated(0);
 	vtable_vt->_vt[-1] = vtable_vt;
 
-	// object has vtable_vt as its vtable
+	// object_vt has vtable_vt as its vtable
 	object_vt = vtable_delegated(0);
 	object_vt->_vt[-1] = vtable_vt;
 	// and vtable_vt is an object
@@ -140,12 +141,13 @@ void init() {
 	symbol_list = vtable_delegated(0);
 
 	s_lookup = symbol_intern(0, "lookup");
-	vtable_addMethod(vtable_vt, s_lookup, (struct object *)vtable_lookup);
+	vtable_addMethod(vtable_vt, s_lookup,
+		(struct object *)vtable_lookup);
 	// send and bind should now work.
 
 	s_addMethod = symbol_intern(0, "addMethod");
 	vtable_addMethod(vtable_vt, s_addMethod,
-	        (struct object *) vtable_addMethod);
+		(struct object *) vtable_addMethod);
 	// addMethod should now work.
 
 	s_allocate = symbol_intern(0, "allocate");

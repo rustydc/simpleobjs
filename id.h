@@ -32,6 +32,8 @@ extern struct object *s_delegated;
 extern struct object *s_lookup;
 extern struct object *s_intern;
 extern struct object *symbol;
+struct vtable *symbol_vt;
+struct vtable *symbol_list;
 
 // A method takes a receiver and a list of params, and returns an object
 typedef struct object *(*method_t)(struct object *receiver, ...);

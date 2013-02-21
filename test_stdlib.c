@@ -31,7 +31,7 @@ struct object *new_list() {
 struct vtable *hashmap_vt;
 
 struct entry {
-	int hash;
+	unsigned long hash;
 	struct object *key;
 	struct object *val;
 };
@@ -42,8 +42,8 @@ struct map {
 	struct entry* entries;
 };
 
-struct object *new_map() {
-	struct map *m = (struct map *) send(hashmap_vt, s_allocate, sizeof(struct map));
+struct object *new_map(struct object *self) {
+	struct map *m = (struct map *) send(self->_vt[-1], s_allocate, sizeof(struct map));
 	m->entries = calloc(16, sizeof(struct entry));
 	m->capacity = 16;
 	return (struct object *) m;
@@ -51,42 +51,66 @@ struct object *new_map() {
 
 void map_double(struct map *self);
 
-int str_hash(char *str) {
-	int hash = 0, i = 0;
-	
+long str_hash(char *str) {
+	long hash = 0, i = 0;
 	while (str[i] != '\0') {
-		hash = hash * 31 + str[i]; 
+		hash = hash * 127 + str[i]; 
 		i++;
 	}
 	return hash;
 }
 
-void map_insert(struct map *self, struct object *key, struct object *val) {
-	int bucket, startBucket, hash, i;
-
-	if (self->length == self->capacity) {
-		map_double(self);
-	}
-	
+struct object *map_get(struct map *self, struct object *key) {
+	int bucket, startBucket, i;
+	long hash;
 	hash = str_hash((char *) key);
 	startBucket = hash % self->capacity;
 	for (i = 0; i != self->capacity; i++) {
 		bucket = startBucket + i % self->capacity;
 		if (self->entries[bucket].key == NULL) {
-			// Found an empty slot, insert.
-			self->entries[bucket].hash = hash;
-			self->entries[bucket].key = key;
-			self->entries[bucket].val = val;
-			self->length++;
-			return;
+			return NULL;
 		} else if (self->entries[bucket].key == key) {
-			// Replace it.
-			self->entries[bucket].val = val;
-			return;
+			return self->entries[bucket].val;
 		}
 	}
-	self->entries[bucket].key = key;
-	self->entries[bucket].val = val;
+	return NULL;
+}
+
+void map_insert(struct map *self, struct object *key, struct object *val) {
+	int bucket, startBucket, i;
+	unsigned long hash;
+
+	if (self->length >= 0.75 * self->capacity) {
+		map_double(self);
+	}
+	
+	// TODO: Send hash message.
+	hash = str_hash((char *) key);
+	startBucket = hash % self->capacity;
+	printf("h=%lu, b=%d\n", hash, startBucket);
+	for (i = 0; i != self->capacity; i++) {
+		bucket = (startBucket + i) % self->capacity;
+		struct entry *curEntry = &self->entries[bucket];
+		// TODO: Check key equality.
+		if (curEntry->key == NULL) {
+			// Found an empty slot, insert.
+			printf(" Empty: %d\n", i);
+			curEntry->hash = hash;
+			curEntry->key = key;
+			curEntry->val = val;
+			self->length++;
+			return;
+		} else if (curEntry->hash == hash && curEntry->key == key) {
+			// Replace it.
+			curEntry->val = val;
+			return;
+		} else {
+			printf(" Occupied.\n");
+		}
+	}
+
+	// No empty slots found; not possible.
+	assert(0); 
 }
 
 void map_double(struct map *self) {
@@ -128,18 +152,37 @@ struct object *str_print(struct object *self) {
 	return self;
 }
 
+void vtable_print(struct vtable* self) {
+	int i;
+	printf("Printing %p:\n", self);
+	for (i = 0; i != self->tally; i++) {
+		printf(" %02d: %s -> %p\n", i, ((struct symbol *)self->keys[i])->string, self->values[i]);
+	}
+	if (self->parent) {
+		printf("parent: %p\n", self->parent);
+		vtable_print(self->parent);
+	}
+}
+
 int main(int argc, char **argv) {
 	init();
 
-	// Delegate a VT from object_vt for maps
-	hashmap_vt = (struct vtable *) send(vtable_vt, s_delegated);
 	struct object *s_new = send(symbol, s_intern, (struct object *) "new");
+	struct object *s_put = send(symbol, s_intern, (struct object *) "put");
+	struct object *s_get = send(symbol, s_intern, (struct object *) "get");
+	struct object *s_print = send(symbol, s_intern, (struct object *) "print");
+
+	hashmap_vt = (struct vtable *) send(object_vt, s_delegated);
 	send(hashmap_vt, s_addMethod, s_new, new_map);
-
-	struct object *s_put = send(symbol, s_intern, (struct object *)"put");
 	send(hashmap_vt, s_addMethod, s_put, map_insert);
+	send(hashmap_vt, s_addMethod, s_get, map_get);
+	// Create a Hashmap class.
+	struct object *Hashmap = send(hashmap_vt, s_allocate, 0);
 
-	struct object *s_print = send(symbol, s_intern, (struct object *)"print");
+	// Create an instance.
+	struct object *hashmap = send(Hashmap, s_new);
+
+
 	send(object_vt, s_addMethod, s_print, str_print);
 
 	char *test_string  = (char *) send(object_vt, s_allocate, 20);
@@ -147,13 +190,13 @@ int main(int argc, char **argv) {
 	char *test_string2 = (char *) send(object_vt, s_allocate, 20);
 	strcpy(test_string2, "Testing again.");
 
-	printf("%s: %d\n", "This is a Java string", str_hash("This is a Java string"));
+	send(hashmap, s_put, test_string, test_string2);
+	send(hashmap, s_put, test_string2, test_string);
+	send(hashmap, s_put, test_string2, test_string);
 
-	//struct map *m = (struct map *) send(hashmap_vt, s_new);
-	struct map *m = (struct map *) new_map();
-	map_insert(m, (struct object *) test_string, (struct object *) test_string2);
-	map_insert(m, (struct object *) test_string2, (struct object *) test_string);
-	map_insert(m, (struct object *) test_string, (struct object *) test_string);
+	send(send(hashmap, s_get, test_string2), s_print);
+	send(send(hashmap, s_get, test_string), s_print);
+	printf("Hashmap size: %d\n", ((struct map *)hashmap)->length);
 
 	return 0;
 }
