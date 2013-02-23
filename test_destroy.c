@@ -4,7 +4,7 @@
 #include "id.h"
 
 // Print an object's address and content as a string.
-struct object *str_print(struct object *self) {
+struct object *string_print(struct object *self) {
 	printf("%p: %s\n", self, (char *) self);
 	return self;
 }
@@ -18,19 +18,19 @@ int main(int argc, char **argv) {
 	init();
 
 	// Install a 'destroy' for all objects.
-	struct object *s_destroy = send(symbol, s_intern, (struct object *)"destroy");
-	send(object_vt, s_addMethod, s_destroy, destroy);
+	struct object *destroy = send(symbol, intern, (struct object *)"destroy");
+	send(object_vt, addMethod, destroy, destroy);
 
-	char *test_string  = (char *) send(object_vt, s_allocate, 20);
-	char *test_string2 = (char *) send(object_vt, s_allocate, 20);
-	strcpy(test_string, "Testing.");
-	strcpy(test_string2, "Testing again.");
+	char *testString  = (char *) send(object_vt, allocate, 20);
+	char *testString2 = (char *) send(object_vt, allocate, 20);
+	strcpy(testString, "Testing.");
+	strcpy(testString2, "Testing again.");
 
-	struct object *print = send(symbol, s_intern, (struct object *)"print");
-	send(object_vt, s_addMethod, print, str_print);
+	struct object *print = send(symbol, intern, (struct object *)"print");
+	send(object_vt, addMethod, print, string_print);
 
-	send(test_string, print);
-	send(test_string2, print);
+	send(testString, print);
+	send(testString2, print);
 
 	return 0;
 }
