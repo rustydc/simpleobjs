@@ -6,11 +6,11 @@
 struct vtable *vtable_vt;
 struct vtable *object_vt;
 struct vtable *symbol_vt;
-struct object *s_addMethod;
-struct object *s_allocate;
-struct object *s_delegated;
-struct object *s_lookup;
-struct object *s_intern;
+struct object *addMethod;
+struct object *allocate;
+struct object *delegated;
+struct object *lookup;
+struct object *intern;
 struct object *symbol;
 struct vtable *symbol_list;
 
@@ -20,9 +20,9 @@ struct object *symbol_new(char *string);
 method_t _bind(struct object *rcv, struct object *msg) {
 	method_t method;
 	struct vtable *vt = rcv->_vt[-1];
-	method = ((msg == s_lookup) && (rcv == (struct object *) vtable_vt))
+	method = ((msg == lookup) && (rcv == (struct object *) vtable_vt))
 	       ? (method_t) vtable_lookup(vt, msg)
-	       : (method_t) send(vt, s_lookup, msg);
+	       : (method_t) send(vt, lookup, msg);
 	return method;
 }
 
@@ -92,7 +92,7 @@ struct object *vtable_lookup(struct vtable *self, struct object *key) {
 
 	// Check our parent if we have one.
 	if (self->parent) {
-		return send(self->parent, s_lookup, key);
+		return send(self->parent, lookup, key);
 	}
 
 	// Lookup failed.
@@ -140,28 +140,28 @@ void init() {
 	// symbol_list is just an orphan vtable
 	symbol_list = vtable_delegated(0);
 
-	s_lookup = symbol_intern(0, "lookup");
-	vtable_addMethod(vtable_vt, s_lookup,
+	lookup = symbol_intern(0, "lookup");
+	vtable_addMethod(vtable_vt, lookup,
 		(struct object *)vtable_lookup);
 	// send and bind should now work.
 
-	s_addMethod = symbol_intern(0, "addMethod");
-	vtable_addMethod(vtable_vt, s_addMethod,
+	addMethod = symbol_intern(0, "addMethod");
+	vtable_addMethod(vtable_vt, addMethod,
 		(struct object *) vtable_addMethod);
 	// addMethod should now work.
 
-	s_allocate = symbol_intern(0, "allocate");
-	send(vtable_vt, s_addMethod, s_allocate, vtable_allocate);
+	allocate = symbol_intern(0, "allocate");
+	send(vtable_vt, addMethod, allocate, vtable_allocate);
 	// allocate should now create a new member of an object family
 
-	symbol = send(symbol_vt, s_allocate, sizeof(struct symbol));
+	symbol = send(symbol_vt, allocate, sizeof(struct symbol));
 
-	s_intern = symbol_intern(0, "intern");
-	send(symbol_vt, s_addMethod, s_intern, symbol_intern);
+	intern = symbol_intern(0, "intern");
+	send(symbol_vt, addMethod, intern, symbol_intern);
 	// new symbols can now be interned.
 
-	s_delegated = send(symbol, s_intern, (struct object *)"delegated");
-	send(vtable_vt, s_addMethod, s_delegated, vtable_delegated);
+	delegated = send(symbol, intern, (struct object *)"delegated");
+	send(vtable_vt, addMethod, delegated, vtable_delegated);
 	// new vtables can now be created.
 }
 

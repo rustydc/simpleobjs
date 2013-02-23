@@ -26,11 +26,11 @@ struct symbol {
 
 extern struct vtable *vtable_vt;
 extern struct vtable *object_vt;
-extern struct object *s_addMethod;
-extern struct object *s_allocate;
-extern struct object *s_delegated;
-extern struct object *s_lookup;
-extern struct object *s_intern;
+extern struct object *addMethod;
+extern struct object *allocate;
+extern struct object *delegated;
+extern struct object *lookup;
+extern struct object *intern;
 extern struct object *symbol;
 struct vtable *symbol_vt;
 struct vtable *symbol_list;

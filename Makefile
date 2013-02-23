@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-g -Wall -Werror -Wno-array-bounds
+CFLAGS=-ggdb -Wall -Werror -Wno-array-bounds
 OBJECTS=$(patsubst %.c, %.o, $(wildcard *.c))
 HEADERS=$(wildcard *.h)
 
