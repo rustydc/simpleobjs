@@ -1,16 +1,5 @@
-// TODO:
-//   Numbers
-//   Strings
-//   Booleans
-//   Lists
-//   I/O
-
 #include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "id.h"
-#include "math.h"
 
 struct entry {
 	unsigned long hash;
