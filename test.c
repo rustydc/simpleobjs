@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "id.h"
-#include "stdlib/map.h"
-#include "stdlib/string.h"
+#include "map.h"
+#include "string.h"
 
 int main(int argc, char **argv) {
 	init();
@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
 	struct object *String = initString();
 
 	// Create some objects.
-	struct object *map = send(Map, s_new);
+	struct object *map = send(Map, new);
 	struct object *testString1 = send(String, new, "Testing."      );
 	struct object *testString2 = send(String, new, "Testing again.");
 

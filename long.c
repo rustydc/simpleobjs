@@ -6,7 +6,7 @@ struct object *new_long(struct object *self, unsigned long num) {
 	unsigned long *l = (unsigned long *) send(
 			self->_vt[-1], allocate, sizeof(unsigned long));
 	*l = num;
-	return l;
+	return (struct object *) l;
 }
 
 struct object *initLong() {

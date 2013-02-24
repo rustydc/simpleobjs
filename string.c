@@ -13,6 +13,15 @@ struct object *new_string(struct object *self, char *str) {
 	strcpy((char *)s, str);
 	return s;
 }
+
+unsigned long string_hash(char *str) {
+	unsigned long hash = 0, i = 0;
+	while (str[i] != '\0') {
+		hash = hash * 127 + str[i]; 
+		i++;
+	}
+	return hash;
+}
 	
 // Print an object's address and content as a string.
 struct object *string_print(struct object *self) {
@@ -28,8 +37,8 @@ struct object *initString() {
 	// Create a String class.
 	struct vtable *string_vt = (struct vtable *) send(object_vt, delegated);
 	send(string_vt, addMethod, new, new_string); // Static
-	send(string_vt, addMethod, print, str_print);
-	send(string_vt, addMethod, hash, str_hash);
+	send(string_vt, addMethod, print, string_print);
+	send(string_vt, addMethod, hash, string_hash);
 	struct object *String = send(string_vt, allocate, 0);
 
 	return String;

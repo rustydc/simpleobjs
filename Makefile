@@ -3,14 +3,14 @@ CFLAGS=-ggdb -Wall -Werror -Wno-array-bounds
 OBJECTS=$(patsubst %.c, %.o, $(wildcard *.c))
 HEADERS=$(wildcard *.h)
 
-all: test_destroy test_stdlib
-test_destroy: id.o test_destroy.o
-test_stdlib: id.o test_stdlib.o
-	$(CC) test_stdlib.o id.o -lm -o test_stdlib
+all: test
 %.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) $< -c -o $@
+test: id.o test.o $(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) -lm -o test
 
 clean:
-	rm -f test_destroy test_stdlib $(OBJECTS)
+	rm -f test $(OBJECTS)
 
-run: clean test_stdlib
-	./test_stdlib
+run: clean test
+	./test

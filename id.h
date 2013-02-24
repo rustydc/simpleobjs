@@ -1,6 +1,8 @@
 #ifndef __ID_H__
 #define __ID_H__
 
+#include <string.h>
+
 struct vtable;
 struct object;
 struct symbol;

@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <assert.h>
 #include "id.h"
 
@@ -14,6 +15,11 @@ struct map {
 	struct entry* entries;
 };
 
+struct object *new_map(struct object *self);
+struct object *map_get(struct map *self, struct object *key);
+void map_insert(struct map *self, struct object *key, struct object *val);
+void map_double(struct map *self);
+
 struct object *new_map(struct object *self) {
 	struct map *m = (struct map *) send(
 			self->_vt[-1], allocate, sizeof(struct map));
@@ -27,14 +33,14 @@ struct object *map_get(struct map *self, struct object *key) {
 	int bucket, startBucket, i;
 	struct object *hash = send(
 			symbol, intern, (struct object *) "new");
-	struct num *hash = (struct num *) send(key, hash);
-	startBucket = hash->number % self->capacity;
+	unsigned long *keyHash = (unsigned long *) send(key, hash);
+	startBucket = *keyHash % self->capacity;
 	for (i = 0; i != self->capacity; i++) {
 		bucket = startBucket + i % self->capacity;
 		struct entry *curEntry = &self->entries[bucket];
 		if (curEntry->key == NULL) {
 			return NULL;
-		} else if (curEntry->hash == hash->number &&
+		} else if (curEntry->hash == *keyHash &&
 		           curEntry->key == key) {
 			return curEntry->val;
 		}
@@ -45,13 +51,13 @@ struct object *map_get(struct map *self, struct object *key) {
 void map_insert(struct map *self, struct object *key, struct object *val) {
 	int bucket, startBucket, i;
 
-	if (self->length >= self->loadFactor * self->capacity) {
+	if (self->length >= self->capacity) {
 		map_double(self);
 	}
 	
 	struct object *hash = send(
 			symbol, intern, (struct object *) "new");
-	unsigned int *keyHash = (struct num *) send(key, hash);
+	unsigned int *keyHash = (unsigned int *) send(key, hash);
 	startBucket = *keyHash % self->capacity;
 	for (i = 0; i != self->capacity; i++) {
 		bucket = (startBucket + i) % self->capacity;
@@ -80,6 +86,7 @@ void map_double(struct map *self) {
 	struct entry* oldEntries = self->entries;
 
 	self->capacity *= 2;
+	self->length = 0;
 	self->entries = calloc(sizeof(struct entry), self->capacity);
 
 	for (i = 0; i != self->capacity; i++) {
