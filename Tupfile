@@ -1,0 +1,5 @@
+CC = clang
+CFLAGS = -ggdb -O2 -Wall -Werror -Wno-array-bounds
+
+: foreach *.c |> $(CC) $(CFLAGS) %f -c -o %o |> %B.o
+: *.o |> $(CC) $(CFLAGS) %f -o %o |> test
