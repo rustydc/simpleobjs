@@ -1,7 +1,10 @@
+#pragma clang diagnostic ignored "-Warray-bounds"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "id.h"
+#include "long.h"
 
 struct vtable *vtable_vt;
 struct vtable *object_vt;
@@ -164,4 +167,3 @@ void init() {
 	send(vtable_vt, addMethod, delegated, vtable_delegated);
 	// new vtables can now be created.
 }
-
