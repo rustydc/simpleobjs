@@ -1,5 +1,6 @@
 CC = clang
 CFLAGS = -g -O2 -Wall -Werror
+.gitignore
 
 : foreach *.c |> $(CC) $(CFLAGS) %f -c -o %o |> %B.o
 : *.o |> $(CC) %f -o %o |> test
