@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "id.h"
@@ -11,7 +12,7 @@ struct entry {
 struct map {
 	int length;
 	int capacity;
-	int loadFactor;
+	float loadFactor;
 	struct entry* entries;
 };
 
@@ -25,23 +26,23 @@ struct object *new_map(struct object *self) {
 			self->_vt[-1], allocate, sizeof(struct map));
 	m->entries = calloc(16, sizeof(struct entry));
 	m->capacity = 16;
-	m->loadFactor = 0.75;
+	m->loadFactor = 1;
 	return (struct object *) m;
 }
 
 struct object *map_get(struct map *self, struct object *key) {
 	int bucket, startBucket, i;
 	struct object *hash = send(
-			symbol, intern, (struct object *) "new");
+			symbol, intern, "hash");
 	unsigned long *keyHash = (unsigned long *) send(key, hash);
 	startBucket = *keyHash % self->capacity;
 	for (i = 0; i != self->capacity; i++) {
-		bucket = startBucket + i % self->capacity;
+		bucket = (startBucket + i) % self->capacity;
 		struct entry *curEntry = &self->entries[bucket];
 		if (curEntry->key == NULL) {
 			return NULL;
 		} else if (curEntry->hash == *keyHash &&
-		           curEntry->key == key) {
+				curEntry->key == key) {
 			return curEntry->val;
 		}
 	}
@@ -51,28 +52,27 @@ struct object *map_get(struct map *self, struct object *key) {
 void map_insert(struct map *self, struct object *key, struct object *val) {
 	int bucket, startBucket, i;
 
-	if (self->length >= self->capacity) {
+	if (self->length >= self->loadFactor * self->capacity) {
 		map_double(self);
 	}
 	
 	struct object *hash = send(
-			symbol, intern, (struct object *) "new");
-	unsigned int *keyHash = (unsigned int *) send(key, hash);
+			symbol, intern, (struct object *) "hash");
+	unsigned long *keyHash = (unsigned long *) send(key, hash);
 	startBucket = *keyHash % self->capacity;
 	for (i = 0; i != self->capacity; i++) {
 		bucket = (startBucket + i) % self->capacity;
-		struct entry *curEntry = &self->entries[bucket];
 		// TODO: Check key equality.
-		if (curEntry->key == NULL) {
+		if (self->entries[bucket].key == NULL) {
 			// Found an empty slot, insert.
-			curEntry->hash = *keyHash;
-			curEntry->key = key;
-			curEntry->val = val;
+			self->entries[bucket].hash = *keyHash;
+			self->entries[bucket].key = key;
+			self->entries[bucket].val = val;
 			self->length++;
 			return;
-		} else if (curEntry->hash == *keyHash && curEntry->key == key) {
+		} else if (self->entries[bucket].hash == *keyHash && self->entries[bucket].key == key) {
 			// Replace it.
-			curEntry->val = val;
+			self->entries[bucket].val = val;
 			return;
 		}
 	}
@@ -84,12 +84,13 @@ void map_insert(struct map *self, struct object *key, struct object *val) {
 void map_double(struct map *self) {
 	int i;
 	struct entry* oldEntries = self->entries;
+	int oldCapacity = self->capacity;
 
 	self->capacity *= 2;
 	self->length = 0;
 	self->entries = calloc(sizeof(struct entry), self->capacity);
 
-	for (i = 0; i != self->capacity; i++) {
+	for (i = 0; i != oldCapacity; i++) {
 		if (oldEntries[i].key != NULL) {
 			map_insert(self, oldEntries[i].key, oldEntries[i].val);
 		}

@@ -1,5 +1,14 @@
 Based heavily on Ian Piumarta's [ID object model](http://piumarta.com/software/id-objmodel/objmodel2.pdf)
 
+### TODO
+ * String#hash depends on Long; kernel-based classloader?
+   * Classpath? :-(
+ * init() returns kernel?
+   * Basic types?
+     * Map, String, Long?
+   * Class loader?
+   * 
+
 ### Ideas
  * Needs a language.
  * Expose as library?

@@ -1,5 +1,5 @@
-CC = clang
-CFLAGS = -g -O2 -Wall -Werror
+CC = gcc
+CFLAGS = -g -Wall -Werror
 .gitignore
 
 : foreach *.c |> $(CC) $(CFLAGS) %f -c -o %o |> %B.o

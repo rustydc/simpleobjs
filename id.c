@@ -1,4 +1,4 @@
-#pragma clang diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Warray-bounds"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -99,7 +99,8 @@ struct object *vtable_lookup(struct vtable *self, struct object *key) {
 	}
 
 	// Lookup failed.
-	printf("Lookup failure: %s\n", ((struct symbol *) key)->string);
+	printf("Lookup failure.\n");
+	printf(" -> %s\n", ((struct symbol *) key)->string);
 	return 0;
 }
 
