@@ -5,6 +5,8 @@
 #include "string.h"
 #include "long.h"
 
+#define NUM_STRINGS 1000000
+
 int main(int argc, char **argv) {
 	init();
 
@@ -23,10 +25,10 @@ int main(int argc, char **argv) {
 
 	// Create some objects.
 	struct object *map = send(Map, new);
-	struct object *strings[500000];
+	struct object *strings[NUM_STRINGS];
 	int i;
 	char *str = malloc(50);
-	for (i = 0; i != 500000; i++) {
+	for (i = 0; i != NUM_STRINGS; i++) {
 		sprintf(str, "%d: A string.", i);
 		strings[i] = send(String, new, str);
 		send(map, put, strings[i], strings[i]);
