@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "id.h"
-#include "long.h"
 
 struct vtable *vtable_vt;
 struct vtable *object_vt;
