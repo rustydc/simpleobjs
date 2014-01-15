@@ -32,8 +32,7 @@ struct object *new_map(struct object *self) {
 
 struct object *map_get(struct map *self, struct object *key) {
 	int bucket, startBucket, i;
-	struct object *hash = send(
-			symbol, intern, "hash");
+	struct object *hash = send(symbol, intern, "hash");
 	unsigned long *keyHash = (unsigned long *) send(key, hash);
 	startBucket = *keyHash % self->capacity;
 	for (i = 0; i != self->capacity; i++) {
@@ -41,8 +40,7 @@ struct object *map_get(struct map *self, struct object *key) {
 		struct entry *curEntry = &self->entries[bucket];
 		if (curEntry->key == NULL) {
 			return NULL;
-		} else if (curEntry->hash == *keyHash &&
-				curEntry->key == key) {
+		} else if (curEntry->hash == *keyHash && curEntry->key == key) {
 			return curEntry->val;
 		}
 	}
@@ -70,7 +68,8 @@ void map_insert(struct map *self, struct object *key, struct object *val) {
 			self->entries[bucket].val = val;
 			self->length++;
 			return;
-		} else if (self->entries[bucket].hash == *keyHash && self->entries[bucket].key == key) {
+		} else if (self->entries[bucket].hash == *keyHash &&
+		           self->entries[bucket].key == key) {
 			// Replace it.
 			self->entries[bucket].val = val;
 			return;
