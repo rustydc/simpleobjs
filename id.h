@@ -34,6 +34,7 @@ extern struct object *delegated;
 extern struct object *lookup;
 extern struct object *intern;
 extern struct object *symbol;
+extern struct object *new;
 struct vtable *symbol_vt;
 struct vtable *symbol_list;
 

@@ -23,7 +23,6 @@ unsigned long *string_hash(char *str) {
 		hash = hash * 31 + str[i]; 
 		i++;
 	}
-	struct object *new = send(symbol, intern, (struct object *) "new");
 	unsigned long *l = (unsigned long *) send(Long, new);
 	*l = hash;
 	return l;

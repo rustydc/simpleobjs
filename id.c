@@ -15,6 +15,7 @@ struct object *lookup;
 struct object *intern;
 struct object *symbol;
 struct vtable *symbol_list;
+struct object *new;
 
 struct object *vtable_lookup(struct vtable *self, struct object *key);
 struct object *symbol_new(char *string);
@@ -166,4 +167,6 @@ void init() {
 	delegated = send(symbol, intern, (struct object *)"delegated");
 	send(vtable_vt, addMethod, delegated, vtable_delegated);
 	// new vtables can now be created.
+
+	new = send(symbol, intern, (struct object *)"new");
 }

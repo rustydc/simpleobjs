@@ -36,7 +36,6 @@ void list_add(struct list *self, struct object *obj) {
 }
 
 struct object *initList() {
-	struct object *new = send(symbol, intern, (struct object *) "new");
 	struct object *add = send(symbol, intern, (struct object *) "add");
 
 	// Create a String class.

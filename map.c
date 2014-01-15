@@ -100,7 +100,6 @@ void map_double(struct map *self) {
 }
 
 struct object *initMap() {
-	struct object *new = send(symbol, intern, (struct object *) "new");
 	struct object *put = send(symbol, intern, (struct object *) "put");
 	struct object *get = send(symbol, intern, (struct object *) "get");
 

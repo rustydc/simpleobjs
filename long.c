@@ -10,8 +10,6 @@ struct object *new_long(struct object *self, unsigned long num) {
 }
 
 struct object *initLong() {
-	struct object *new = send(symbol, intern, (struct object *) "new");
-
 	// Create a Number class.
 	struct vtable *long_vt =
 			(struct vtable *) send(object_vt, delegated);
